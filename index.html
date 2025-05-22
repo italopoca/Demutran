@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -15,6 +14,19 @@
       padding: 2vw;
       margin: 0;
       user-select: none; /* bloqueia seleção de texto */
+      -webkit-user-select: none; /* Safari */
+      -moz-user-select: none; /* Firefox */
+      -ms-user-select: none; /* IE10+/Edge */
+    }
+
+    /* Bloqueia arrastar imagens */
+    img {
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+      user-drag: none;
+      pointer-events: none; /* impede interações */
     }
 
     .logo {
@@ -23,8 +35,7 @@
       height: auto;
       display: block;
       margin: 0 auto 20px auto;
-      -webkit-user-drag: none; /* bloqueia arrastar imagem */
-      user-drag: none;
+      pointer-events: auto; /* Permite clicar na logo se quiser */
     }
 
     input[type="text"], textarea {
@@ -39,7 +50,8 @@
       font-weight: bold;
       text-transform: uppercase;
       resize: vertical;
-      user-select: text; /* permite seleção dentro do input */
+      user-select: text; /* Permite selecionar texto dentro dos inputs */
+      pointer-events: auto; /* Permite interação com inputs */
     }
 
     .contador-container {
@@ -83,6 +95,7 @@
       min-width: 36px;
       min-height: 36px;
       user-select: none;
+      pointer-events: auto;
     }
 
     .botao-contador:hover {
@@ -107,7 +120,6 @@
       max-width: 400px;
       margin-left: auto;
       margin-right: auto;
-      user-select: none;
     }
 
     .botao {
@@ -127,6 +139,7 @@
       max-width: 400px;
       box-sizing: border-box;
       user-select: none;
+      pointer-events: auto;
     }
 
     .botao:hover {
@@ -147,25 +160,11 @@
       font-size: 0.85rem;
       box-shadow: 0 0 8px rgba(0,0,0,0.1);
       text-transform: uppercase;
-      user-select: none;
+      user-select: none; /* bloqueia seleção do texto */
     }
 
     textarea {
       min-height: 80px;
-      user-select: text; /* permite seleção dentro do textarea */
-    }
-
-    footer {
-      margin-top: 2rem;
-      text-align: center;
-      user-select: none;
-    }
-
-    footer img {
-      width: 120px;
-      height: auto;
-      user-drag: none;
-      -webkit-user-drag: none;
     }
 
     @media (max-width: 500px) {
@@ -203,18 +202,14 @@
         max-width: 90vw;
         margin: 1rem auto 0 auto;
       }
-
-      footer img {
-        width: 90px;
-      }
     }
   </style>
 </head>
-<body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;">
+<body>
 
-  <img src="https://barcarena.pa.gov.br/wp-content/uploads/2024/09/LOGO-DEMUTRAN-COLOR.png" alt="Logo DEMUTRAN" class="logo" draggable="false"/>
+  <img src="https://barcarena.pa.gov.br/wp-content/uploads/2024/09/LOGO-DEMUTRAN-COLOR.png" alt="Logo DEMUTRAN" class="logo"/>
 
-  <input type="text" id="nomeOperador" placeholder="Digite seu nome" autocomplete="off" />
+  <input type="text" id="nomeOperador" placeholder="Digite seu nome" />
 
   <div class="contador-container">
     <div class="contador-nome">CARRO COM CINTO</div>
@@ -273,65 +268,184 @@
   <textarea id="observacoes" placeholder="OBSERVAÇÕES"></textarea>
 
   <div class="acoes-container">
-    <button class="botao" onclick="zerarTudo()">ZERAR</button>
-    <button class="botao" onclick="gerarRelatorio()">GERAR RELATÓRIO</button>
+    <button class="botao" onclick="zerarContagem()">ZERAR CONTAGEM</button>
+    <button class="botao" onclick="gerarRelatorio()">BAIXAR RELATÓRIO</button>
+    <button class="botao" onclick="enviarWhatsApp()">ENVIAR RELATÓRIO PELO WHATSAPP</button>
   </div>
 
   <div class="info-texto">
-    Toque nos botões para aumentar ou diminuir a contagem. Nome e observações serão incluídos no relatório.
+    PARA QUE VOCÊ POSSA BAIXAR OU COMPARTILHAR O RELATÓRIO COM EFICIÊNCIA É NECESSÁRIO VOCÊ PREENCHER SEU NOME
   </div>
 
-  <footer>
-    <img src="https://i.imgur.com/msCPkZW.png" alt="Logo rodapé DEMUTRAN" draggable="false"/>
+  <footer style="margin-top: 2rem; text-align: center;">
+    <img 
+      src="https://i.imgur.com/msCPkZW.png" 
+      alt="Rodapé" 
+      style="height: 36px; width: auto; object-fit: contain;"
+      draggable="false"
+    />
   </footer>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <script>
-    // Evitar copiar texto no corpo da página
-    document.body.addEventListener('copy', (e) => e.preventDefault());
+    // Bloqueia clique direito em toda a página
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
 
-    // Função para alterar os contadores
-    function alterar(id, delta) {
-      const el = document.getElementById(id);
-      let valor = parseInt(el.textContent);
-      valor += delta;
-      if (valor < 0) valor = 0;
-      el.textContent = valor;
+    // Bloqueia atalho Ctrl+S (salvar página) e Ctrl+C (copiar)
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault();
+        alert('Salvar a página foi bloqueado!');
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C')) {
+        e.preventDefault();
+        alert('Copiar foi bloqueado!');
+      }
+    });
+
+    // Bloqueia seleção de texto via mouse e teclado fora dos inputs e textarea
+    document.addEventListener('selectstart', function(e) {
+      const tag = e.target.tagName.toLowerCase();
+      if (tag !== 'input' && tag !== 'textarea') {
+        e.preventDefault();
+      }
+    });
+
+    // Permite interação normal em inputs e textarea
+    // Controle dos contadores
+    const contadores = {
+      carroComCinto: 0,
+      carroSemCinto: 0,
+      motoComCapacete: 0,
+      motoSemCapacete: 0,
+      ciclistas: 0,
+      pedestres: 0
+    };
+
+    function alterar(categoria, valor) {
+      contadores[categoria] += valor;
+      if (contadores[categoria] < 0) contadores[categoria] = 0;
+      document.getElementById(categoria).textContent = contadores[categoria];
+      salvarDados();
     }
 
-    // Zerando todos os contadores e observações
-    function zerarTudo() {
-      const ids = ['carroComCinto','carroSemCinto','motoComCapacete','motoSemCapacete','ciclistas','pedestres'];
-      ids.forEach(id => {
-        document.getElementById(id).textContent = '0';
-      });
-      document.getElementById('nomeOperador').value = '';
+    function zerarContagem() {
+      for (const key in contadores) {
+        contadores[key] = 0;
+        document.getElementById(key).textContent = 0;
+      }
       document.getElementById('observacoes').value = '';
+      document.getElementById('nomeOperador').value = '';
+      salvarDados();
     }
 
-    // Gerar relatório em formato texto simples e abrir no WhatsApp Web (via link)
-    function gerarRelatorio() {
-      const nome = document.getElementById('nomeOperador').value.toUpperCase().trim() || 'SEM NOME';
-      const obs = document.getElementById('observacoes').value.toUpperCase().trim() || 'NENHUMA';
-      const ids = [
-        {id:'carroComCinto', label:'CARRO COM CINTO'},
-        {id:'carroSemCinto', label:'CARRO SEM CINTO'},
-        {id:'motoComCapacete', label:'MOTOCICLETA COM CAPACETE'},
-        {id:'motoSemCapacete', label:'MOTOCICLETA SEM CAPACETE'},
-        {id:'ciclistas', label:'CICLISTAS'},
-        {id:'pedestres', label:'PEDESTRES'},
-      ];
-      let texto = `RELATÓRIO DE CONTAGEM\nNOME: ${nome}\n\n`;
-      ids.forEach(item => {
-        texto += `${item.label}: ${document.getElementById(item.id).textContent}\n`;
-      });
-      texto += `\nOBSERVAÇÕES:\n${obs}\n`;
-      alert(texto); // mostra o relatório para o usuário
-
-      // Se quiser abrir WhatsApp, descomente abaixo e configure número:
-      // const numeroWhats = '55XXXXXXXXXX'; // Coloque seu número no formato internacional sem "+" e com DDD
-      // const urlWhats = `https://wa.me/${numeroWhats}?text=${encodeURIComponent(texto)}`;
-      // window.open(urlWhats, '_blank');
+    // Salvar dados no localStorage
+    function salvarDados() {
+      localStorage.setItem('contadores', JSON.stringify(contadores));
+      localStorage.setItem('observacoes', document.getElementById('observacoes').value);
+      localStorage.setItem('nomeOperador', document.getElementById('nomeOperador').value);
     }
+
+    // Carregar dados do localStorage
+    function carregarDados() {
+      const dadosContadores = JSON.parse(localStorage.getItem('contadores'));
+      if (dadosContadores) {
+        for (const key in dadosContadores) {
+          if (contadores.hasOwnProperty(key)) {
+            contadores[key] = dadosContadores[key];
+            document.getElementById(key).textContent = dadosContadores[key];
+          }
+        }
+      }
+      const obs = localStorage.getItem('observacoes');
+      if (obs !== null) {
+        document.getElementById('observacoes').value = obs;
+      }
+      const nome = localStorage.getItem('nomeOperador');
+      if (nome !== null) {
+        document.getElementById('nomeOperador').value = nome;
+      }
+    }
+
+    async function gerarRelatorio() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const nome = document.getElementById('nomeOperador').value.trim();
+      if (!nome) {
+        alert('Por favor, preencha seu nome para gerar o relatório.');
+        return;
+      }
+
+      doc.setFontSize(16);
+      doc.text('Relatório DEMUTRAN', 105, 20, null, null, 'center');
+
+      doc.setFontSize(12);
+      doc.text(`Operador: ${nome.toUpperCase()}`, 14, 30);
+
+      let posY = 40;
+      for (const key in contadores) {
+        let label = '';
+        switch(key) {
+          case 'carroComCinto': label = 'CARRO COM CINTO'; break;
+          case 'carroSemCinto': label = 'CARRO SEM CINTO'; break;
+          case 'motoComCapacete': label = 'MOTOCICLETA COM CAPACETE'; break;
+          case 'motoSemCapacete': label = 'MOTOCICLETA SEM CAPACETE'; break;
+          case 'ciclistas': label = 'CICLISTAS'; break;
+          case 'pedestres': label = 'PEDESTRES'; break;
+        }
+        doc.text(`${label}: ${contadores[key]}`, 14, posY);
+        posY += 10;
+      }
+
+      const obs = document.getElementById('observacoes').value.trim();
+      if (obs) {
+        doc.text('OBSERVAÇÕES:', 14, posY + 5);
+        doc.setFontSize(11);
+        doc.text(obs.toUpperCase(), 14, posY + 15, { maxWidth: 180 });
+      }
+
+      doc.save('relatorio_demutran.pdf');
+    }
+
+    function enviarWhatsApp() {
+      const nome = document.getElementById('nomeOperador').value.trim();
+      if (!nome) {
+        alert('Por favor, preencha seu nome para enviar o relatório.');
+        return;
+      }
+      let mensagem = `RELATÓRIO DEMUTRAN%0AOPERADOR: ${nome.toUpperCase()}%0A`;
+      for (const key in contadores) {
+        let label = '';
+        switch(key) {
+          case 'carroComCinto': label = 'CARRO COM CINTO'; break;
+          case 'carroSemCinto': label = 'CARRO SEM CINTO'; break;
+          case 'motoComCapacete': label = 'MOTOCICLETA COM CAPACETE'; break;
+          case 'motoSemCapacete': label = 'MOTOCICLETA SEM CAPACETE'; break;
+          case 'ciclistas': label = 'CICLISTAS'; break;
+          case 'pedestres': label = 'PEDESTRES'; break;
+        }
+        mensagem += `${label}: ${contadores[key]}%0A`;
+      }
+      const obs = document.getElementById('observacoes').value.trim();
+      if (obs) {
+        mensagem += `OBSERVAÇÕES: ${obs.toUpperCase()}`;
+      }
+      const url = `https://wa.me/?text=${mensagem}`;
+      window.open(url, '_blank');
+    }
+
+    // Inicializa dados
+    carregarDados();
+
+    // Salva dados automaticamente ao digitar
+    document.getElementById('observacoes').addEventListener('input', salvarDados);
+    document.getElementById('nomeOperador').addEventListener('input', salvarDados);
+
   </script>
+
 </body>
 </html>
