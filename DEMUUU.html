@@ -1,0 +1,337 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contador DEMUTRAN</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      background-color: #E2AC2E;
+      color: #2d2d2d;
+      text-align: center;
+      padding: 2vw;
+      margin: 0;
+      user-select: none; /* bloqueia seleção de texto */
+    }
+
+    .logo {
+      width: 60%;
+      max-width: 250px;
+      height: auto;
+      display: block;
+      margin: 0 auto 20px auto;
+      -webkit-user-drag: none; /* bloqueia arrastar imagem */
+      user-drag: none;
+    }
+
+    input[type="text"], textarea {
+      padding: 1rem;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: none;
+      width: 100%;
+      max-width: 400px;
+      margin: 1rem auto;
+      display: block;
+      font-weight: bold;
+      text-transform: uppercase;
+      resize: vertical;
+      user-select: text; /* permite seleção dentro do input */
+    }
+
+    .contador-container {
+      background-color: #2d2d2d;
+      color: #E2AC2E;
+      font-size: 1.2rem;
+      margin: 1rem auto;
+      padding: 1rem;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    .contador-nome {
+      width: 35%;
+      text-align: left;
+    }
+
+    .botoes {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .botao-contador {
+      background-color: #fff;
+      color: #2d2d2d;
+      border: none;
+      font-size: 1.2rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      text-transform: uppercase;
+      min-width: 36px;
+      min-height: 36px;
+      user-select: none;
+    }
+
+    .botao-contador:hover {
+      background-color: #E2AC2E;
+      color: #2d2d2d;
+    }
+
+    .valor {
+      width: 2.5rem;
+      display: inline-block;
+      text-align: center;
+      color: #E2AC2E;
+      font-weight: bold;
+      user-select: none;
+    }
+
+    .acoes-container {
+      display: flex;
+      flex-direction: column; /* para os botões ficarem um embaixo do outro */
+      gap: 12px;
+      margin-top: 1rem;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      user-select: none;
+    }
+
+    .botao {
+      background-color: #2d2d2d;
+      color: #E2AC2E;
+      font-size: 1.1rem;
+      font-weight: bold;
+      padding: 1rem 2rem;
+      border-radius: 15px;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+      width: 100%; /* Para expandir a largura máxima do container */
+      max-width: 400px;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    .botao:hover {
+      background-color: #2d2d2d;
+      color: #E2AC2E;
+    }
+
+    .info-texto {
+      margin-top: 1rem;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      font-weight: normal;
+      color: #2d2d2d;
+      background: #fff9d1;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    textarea {
+      min-height: 80px;
+      user-select: text; /* permite seleção dentro do textarea */
+    }
+
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      user-select: none;
+    }
+
+    footer img {
+      width: 120px;
+      height: auto;
+      user-drag: none;
+      -webkit-user-drag: none;
+    }
+
+    @media (max-width: 500px) {
+      .contador-container {
+        font-size: 1rem;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-width: 90vw;
+        padding: 0.8rem;
+      }
+
+      .contador-nome {
+        width: 100%;
+        text-align: center;
+      }
+
+      .botoes {
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .botao-contador {
+        font-size: 1rem;
+        padding: 0.25rem 0.6rem;
+        min-width: 30px;
+        min-height: 30px;
+      }
+
+      .valor {
+        font-size: 1rem;
+        width: 2rem;
+      }
+
+      .acoes-container {
+        max-width: 90vw;
+        margin: 1rem auto 0 auto;
+      }
+
+      footer img {
+        width: 90px;
+      }
+    }
+  </style>
+</head>
+<body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;">
+
+  <img src="https://barcarena.pa.gov.br/wp-content/uploads/2024/09/LOGO-DEMUTRAN-COLOR.png" alt="Logo DEMUTRAN" class="logo" draggable="false"/>
+
+  <input type="text" id="nomeOperador" placeholder="Digite seu nome" autocomplete="off" />
+
+  <div class="contador-container">
+    <div class="contador-nome">CARRO COM CINTO</div>
+    <div class="botoes">
+      <button class="botao-contador" onclick="alterar('carroComCinto', -1)" aria-label="Diminuir contagem de carro com cinto">-</button>
+      <span id="carroComCinto" class="valor">0</span>
+      <button class="botao-contador" onclick="alterar('carroComCinto', 1)" aria-label="Aumentar contagem de carro com cinto">+</button>
+    </div>
+  </div>
+
+  <div class="contador-container">
+    <div class="contador-nome">CARRO SEM CINTO</div>
+    <div class="botoes">
+      <button class="botao-contador" onclick="alterar('carroSemCinto', -1)" aria-label="Diminuir contagem de carro sem cinto">-</button>
+      <span id="carroSemCinto" class="valor">0</span>
+      <button class="botao-contador" onclick="alterar('carroSemCinto', 1)" aria-label="Aumentar contagem de carro sem cinto">+</button>
+    </div>
+  </div>
+
+  <div class="contador-container">
+    <div class="contador-nome">MOTOCICLETA COM CAPACETE</div>
+    <div class="botoes">
+      <button class="botao-contador" onclick="alterar('motoComCapacete', -1)" aria-label="Diminuir contagem de motocicleta com capacete">-</button>
+      <span id="motoComCapacete" class="valor">0</span>
+      <button class="botao-contador" onclick="alterar('motoComCapacete', 1)" aria-label="Aumentar contagem de motocicleta com capacete">+</button>
+    </div>
+  </div>
+
+  <div class="contador-container">
+    <div class="contador-nome">MOTOCICLETA SEM CAPACETE</div>
+    <div class="botoes">
+      <button class="botao-contador" onclick="alterar('motoSemCapacete', -1)" aria-label="Diminuir contagem de motocicleta sem capacete">-</button>
+      <span id="motoSemCapacete" class="valor">0</span>
+      <button class="botao-contador" onclick="alterar('motoSemCapacete', 1)" aria-label="Aumentar contagem de motocicleta sem capacete">+</button>
+    </div>
+  </div>
+
+  <div class="contador-container">
+    <div class="contador-nome">CICLISTAS</div>
+    <div class="botoes">
+      <button class="botao-contador" onclick="alterar('ciclistas', -1)" aria-label="Diminuir contagem de ciclistas">-</button>
+      <span id="ciclistas" class="valor">0</span>
+      <button class="botao-contador" onclick="alterar('ciclistas', 1)" aria-label="Aumentar contagem de ciclistas">+</button>
+    </div>
+  </div>
+
+  <div class="contador-container">
+    <div class="contador-nome">PEDESTRES</div>
+    <div class="botoes">
+      <button class="botao-contador" onclick="alterar('pedestres', -1)" aria-label="Diminuir contagem de pedestres">-</button>
+      <span id="pedestres" class="valor">0</span>
+      <button class="botao-contador" onclick="alterar('pedestres', 1)" aria-label="Aumentar contagem de pedestres">+</button>
+    </div>
+  </div>
+
+  <textarea id="observacoes" placeholder="OBSERVAÇÕES"></textarea>
+
+  <div class="acoes-container">
+    <button class="botao" onclick="zerarTudo()">ZERAR</button>
+    <button class="botao" onclick="gerarRelatorio()">GERAR RELATÓRIO</button>
+  </div>
+
+  <div class="info-texto">
+    Toque nos botões para aumentar ou diminuir a contagem. Nome e observações serão incluídos no relatório.
+  </div>
+
+  <footer>
+    <img src="https://i.imgur.com/msCPkZW.png" alt="Logo rodapé DEMUTRAN" draggable="false"/>
+  </footer>
+
+  <script>
+    // Evitar copiar texto no corpo da página
+    document.body.addEventListener('copy', (e) => e.preventDefault());
+
+    // Função para alterar os contadores
+    function alterar(id, delta) {
+      const el = document.getElementById(id);
+      let valor = parseInt(el.textContent);
+      valor += delta;
+      if (valor < 0) valor = 0;
+      el.textContent = valor;
+    }
+
+    // Zerando todos os contadores e observações
+    function zerarTudo() {
+      const ids = ['carroComCinto','carroSemCinto','motoComCapacete','motoSemCapacete','ciclistas','pedestres'];
+      ids.forEach(id => {
+        document.getElementById(id).textContent = '0';
+      });
+      document.getElementById('nomeOperador').value = '';
+      document.getElementById('observacoes').value = '';
+    }
+
+    // Gerar relatório em formato texto simples e abrir no WhatsApp Web (via link)
+    function gerarRelatorio() {
+      const nome = document.getElementById('nomeOperador').value.toUpperCase().trim() || 'SEM NOME';
+      const obs = document.getElementById('observacoes').value.toUpperCase().trim() || 'NENHUMA';
+      const ids = [
+        {id:'carroComCinto', label:'CARRO COM CINTO'},
+        {id:'carroSemCinto', label:'CARRO SEM CINTO'},
+        {id:'motoComCapacete', label:'MOTOCICLETA COM CAPACETE'},
+        {id:'motoSemCapacete', label:'MOTOCICLETA SEM CAPACETE'},
+        {id:'ciclistas', label:'CICLISTAS'},
+        {id:'pedestres', label:'PEDESTRES'},
+      ];
+      let texto = `RELATÓRIO DE CONTAGEM\nNOME: ${nome}\n\n`;
+      ids.forEach(item => {
+        texto += `${item.label}: ${document.getElementById(item.id).textContent}\n`;
+      });
+      texto += `\nOBSERVAÇÕES:\n${obs}\n`;
+      alert(texto); // mostra o relatório para o usuário
+
+      // Se quiser abrir WhatsApp, descomente abaixo e configure número:
+      // const numeroWhats = '55XXXXXXXXXX'; // Coloque seu número no formato internacional sem "+" e com DDD
+      // const urlWhats = `https://wa.me/${numeroWhats}?text=${encodeURIComponent(texto)}`;
+      // window.open(urlWhats, '_blank');
+    }
+  </script>
+</body>
+</html>
